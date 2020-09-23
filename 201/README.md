@@ -25,7 +25,7 @@
 
 # Contributors
 
-- Ajeet Singh Raina
+
 
 
 [Next:  Kubernetes301]()
