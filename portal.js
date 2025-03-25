@@ -315,6 +315,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
+            // Clean up any !alt text
+            cleanupAltText();
+            
             // If on mobile, close the sidebar after selecting content
             if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
                 sidebar.classList.remove('active');
@@ -326,6 +329,31 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading content:', error);
             contentArea.innerHTML = `<div class="error"><p>Error loading content: ${error.message}</p><p>Try refreshing the page or selecting a different lab.</p></div>`;
         }
+    }
+
+    // Clean up !alt text occurrences
+    function cleanupAltText() {
+        // Find all elements containing !alt text
+        const elements = document.querySelectorAll('.lab-content *');
+        
+        elements.forEach(el => {
+            // Replace in text nodes
+            for (let i = 0; i < el.childNodes.length; i++) {
+                const node = el.childNodes[i];
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('!alt text')) {
+                    node.textContent = node.textContent.replace(/!alt text/g, '');
+                }
+            }
+            
+            // Handle links and other elements with !alt text
+            if (el.textContent.includes('!alt text') && el.tagName === 'A') {
+                if (el.textContent.trim() === '!alt text') {
+                    el.style.display = 'none'; // Hide the element completely
+                } else {
+                    el.textContent = el.textContent.replace(/!alt text/g, '');
+                }
+            }
+        });
     }
 
     // Handle search
@@ -406,4 +434,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Start the portal
     initPortal();
-});}
+});
