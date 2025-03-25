@@ -393,6 +393,12 @@ header {
     margin-right: 8px;
 }
 
+/* Hide !alt text */
+.lab-content a:contains('!alt'), 
+.lab-content p:contains('!alt') {
+    display: none !important;
+}
+
 /* Footer */
 footer {
     background-color: var(--dark-color);
