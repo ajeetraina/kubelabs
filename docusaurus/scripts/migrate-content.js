@@ -42,6 +42,16 @@ const findMarkdownFiles = (dir) => {
   return results;
 };
 
+// Generate a docusaurus-friendly ID from a file path
+const generateDocId = (filePath) => {
+  const relativePath = path.relative(ROOT_DIR, filePath);
+  
+  // Replace slashes with underscores and remove .md extension
+  return relativePath
+    .replace(/\.md$/, '')
+    .replace(/\//g, '_');
+};
+
 // Process the special README.md file separately as intro.md
 const processReadme = () => {
   const readmePath = path.join(ROOT_DIR, 'README.md');
@@ -84,12 +94,6 @@ const extractTitle = (content, filePath) => {
     .join(' ');
 };
 
-// Generate a docusaurus-friendly ID from a file path
-const generateDocId = (filePath) => {
-  const relativePath = path.relative(ROOT_DIR, filePath);
-  return relativePath.replace(/\.md$/, '').replace(/\//g, '_'); // Replace slashes with underscores
-};
-
 // Process a markdown file for Docusaurus
 const processMarkdownFile = (filePath) => {
   const relativePath = path.relative(ROOT_DIR, filePath);
@@ -115,8 +119,9 @@ const processMarkdownFile = (filePath) => {
     fs.mkdirSync(targetDir, { recursive: true });
   }
   
+  // Write the processed file
   fs.writeFileSync(path.join(DOCS_DIR, relativePath), content);
-  console.log(`\u2705 Processed ${relativePath}`);
+  console.log(`\u2705 Processed ${relativePath} with ID: ${docId}`);
   
   // Add to our documents list for sidebar generation
   allDocuments.push({
@@ -127,61 +132,75 @@ const processMarkdownFile = (filePath) => {
   });
 };
 
-// Generate a sidebar configuration based on processed documents
+// Generate a simple sidebar configuration
 const generateSidebar = () => {
-  // Group documents by their top-level directory
-  const categories = {};
-  
-  allDocuments.forEach(doc => {
-    if (!categories[doc.category]) {
-      categories[doc.category] = [];
-    }
-    
-    categories[doc.category].push(doc.id);
-  });
-  
-  // Create the sidebar configuration
-  let sidebarConfig = '/** @type {import(\'@docusaurus/plugin-content-docs\').SidebarsConfig} */\n';
-  sidebarConfig += 'const sidebars = {\n';
-  sidebarConfig += '  tutorialSidebar: [\n';
-  
-  // Order categories alphabetically, but put Introduction first
-  const orderedCategories = Object.keys(categories).sort((a, b) => {
-    if (a === 'Introduction') return -1;
-    if (b === 'Introduction') return 1;
-    return a.localeCompare(b);
-  });
+  const sidebar = {
+    tutorialSidebar: [
+      'intro', // Always include intro as the first item
+    ]
+  };
 
-  // Add each category
-  orderedCategories.forEach(category => {
-    // For the Introduction category, just use the items directly
-    if (category === 'Introduction' && categories[category].includes('intro')) {
-      categories[category].forEach(docId => {
-        sidebarConfig += `    '${docId}',\n`;
-      });
-    } else {
-      sidebarConfig += '    {\n';
-      sidebarConfig += `      type: 'category',\n`;
-      sidebarConfig += `      label: '${category}',\n`;
-      sidebarConfig += '      items: [\n';
-      
-      // Add all documents in this category
-      categories[category].sort().forEach(docId => {
-        sidebarConfig += `        '${docId}',\n`;
-      });
-      
-      sidebarConfig += '      ],\n';
-      sidebarConfig += '    },\n';
-    }
-  });
-  
-  sidebarConfig += '  ],\n';
-  sidebarConfig += '};\n\n';
-  sidebarConfig += 'module.exports = sidebars;';
-  
+  // Create a simple hand-crafted sidebar
+  const sidebarConfig = `/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
+const sidebars = {
+  tutorialSidebar: [
+    'intro',
+    'kube101',
+    'Kubernetes_Architecture',
+    {
+      type: 'category',
+      label: 'Getting Started',
+      items: ['gke-setup', 'weave', 'weave-pwk', 'kubectl-for-docker', 'api', 'detect']
+    },
+    {
+      type: 'category',
+      label: 'Pods',
+      items: ['pods101_pods101_deploy-your-first-nginx-pod', 'pods101_pods101_FAQs', 'pods101_tools_pods101_tools_kubetail'] 
+    },
+    {
+      type: 'category',
+      label: 'ConfigMaps',
+      items: ['ConfigMaps101_ConfigMaps101_what-are-configmaps', 'secerts_configmaps101_secerts_configmaps101_secrets-configmaps']
+    },
+    {
+      type: 'category',
+      label: 'Deployments',
+      items: ['Deployment101_Deployment101_Blue-Green-Strategies', 'Deployment101_Deployment101_Rolling_Update']
+    },
+    {
+      type: 'category',
+      label: 'Cloud Providers',
+      items: [
+        'AKS101_AKS101_what-is-aks',
+        'EKS101_EKS101_what-is-eks',
+        'GKE101_GKE101_what-is-gke',
+        'LKE101_LKE101_what-is-lke'
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Advanced Topics',
+      items: [
+        'Helm101_Helm101_what-is-helm',
+        'GitOps101_GitOps101_what-is-gitops',
+        'Security101_Security101_kubernetes-security',
+        'Logging101_Logging101_logging-intro',
+        'Observability101_Observability101_observability'
+      ]
+    },
+  ],
+};
+
+module.exports = sidebars;`;
+
   // Write the sidebar configuration
   fs.writeFileSync(path.join(__dirname, '../sidebars.js'), sidebarConfig);
-  console.log('\u2705 Generated sidebars.js configuration');
+  console.log('\u2705 Generated hardcoded sidebars.js configuration');
+  
+  // Additionally, write a file with all document IDs for debugging
+  const allDocIds = allDocuments.map(doc => doc.id).sort();
+  fs.writeFileSync(path.join(__dirname, '../all-doc-ids.txt'), allDocIds.join('\n'));
+  console.log('\u2705 Generated all-doc-ids.txt for debugging');
 };
 
 // Main execution
