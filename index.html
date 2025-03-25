@@ -1,111 +1,217 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KubeLabs - Kubernetes Hands-on Labs</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
-    <script src="markdown-parser.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-</head>
-<body>
-    <header>
-        <div class="logo-container">
-            <h1>KubeLabs</h1>
-            <p>A Curated List of Kubernetes Labs and Tutorials</p>
-        </div>
-        <div class="header-actions">
-            <a href="https://github.com/ajeetraina/kubelabs" target="_blank" class="github-link">
-                <i class="fab fa-github"></i> GitHub
-            </a>
-            <button id="menu-toggle" class="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </header>
+---
+layout: default
+title: Home
+---
 
-    <div class="container">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h3>Labs & Tutorials</h3>
-                <input type="text" id="search-labs" placeholder="Search labs...">
-            </div>
-            <nav class="sidebar-menu">
-                <!-- This will be populated by JavaScript -->
-            </nav>
-            <div class="sidebar-footer">
-                <a href="https://launchpass.com/collabnix" target="_blank">Join our Community</a>
-                <a href="https://discord.gg/QEkCXAXYSe" target="_blank">Discord Server</a>
-                <a href="https://twitter.com/collabnix" target="_blank">Twitter</a>
-            </div>
-        </aside>
-
-        <main class="content" id="content">
-            <div class="welcome-content">
-                <h2>Get Started with Kubernetes</h2>
-                <p>Welcome to KubeLabs - Your Ultimate Hands-on Platform for Kubernetes Learning</p>
-                
-                <div class="features">
-                    <div class="feature-card">
-                        <i class="fas fa-dollar-sign"></i>
-                        <h3>$0 Learning Platform</h3>
-                        <p>Free and open source for all skill levels - from the ground up</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-book"></i>
-                        <h3>500+ Interactive Tutorials</h3>
-                        <p>Comprehensive collection of highly interactive Kubernetes tutorials and guides</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-laptop-code"></i>
-                        <h3>Browser-Based</h3>
-                        <p>Labs well tested on Kubernetes Cluster and can be run in your browser</p>
-                    </div>
-                </div>
-
-                <div class="getting-started">
-                    <h3>How to Use This Portal</h3>
-                    <p>This portal organizes all Kubernetes labs in an easy-to-navigate structure:</p>
-                    <ol>
-                        <li>Browse the labs by category in the left sidebar</li>
-                        <li>Click on any lab to view its content in this main area</li>
-                        <li>Follow along with the step-by-step instructions and examples</li>
-                        <li>Experiment in your own Kubernetes environment</li>
-                    </ol>
-                    <p>Select a category from the sidebar to begin your Kubernetes learning journey!</p>
-                </div>
-
-                <div class="featured-articles">
-                    <h3>Featured Articles</h3>
-                    <div class="articles-grid">
-                        <a href="https://collabnix.com/kubernetes-crashloopbackoff-error-what-it-is-and-how-to-fix-it/" class="article-card" target="_blank">
-                            <h4>Kubernetes CrashLoopBackOff Error: What It Is and How to Fix It?</h4>
-                        </a>
-                        <a href="https://collabnix.com/top-5-kubernetes-backup-tools-you-should-be-aware-of/" class="article-card" target="_blank">
-                            <h4>Top 5 Kubernetes Backup and Storage Solutions: Velero and More</h4>
-                        </a>
-                        <a href="https://collabnix.com/top-5-storage-provider-tools-for-kubernetes/" class="article-card" target="_blank">
-                            <h4>Top 5 Storage Provider Tools for Kubernetes</h4>
-                        </a>
-                        <a href="https://collabnix.com/top-5-alert-and-monitoring-tools-for-kubernetes/" class="article-card" target="_blank">
-                            <h4>Top 5 Alert and Monitoring Tools for Kubernetes</h4>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </main>
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1 class="hero-title">Kubernetes Hands-on Labs</h1>
+      <p class="hero-description">
+        A curated collection of Kubernetes labs and tutorials for all skill levels. Learn Kubernetes from the ground up with interactive labs, practical examples, and comprehensive guides.
+      </p>
+      <div class="hero-cta">
+        <a href="#labs" class="btn btn-primary">
+          <i class="fas fa-flask"></i> Explore Labs
+        </a>
+        <a href="https://github.com/ajeetraina/kubelabs" class="btn btn-secondary">
+          <i class="fab fa-github"></i> GitHub Repository
+        </a>
+      </div>
     </div>
+  </div>
+</section>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2025 KubeLabs | <a href="https://github.com/ajeetraina/kubelabs" target="_blank">GitHub</a></p>
+<section class="features">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-graduation-cap"></i>
         </div>
-    </footer>
+        <h3 class="feature-title">For All Skill Levels</h3>
+        <p class="feature-description">
+          Whether you're a beginner or an advanced user, our labs cater to all expertise levels and provide a structured learning path.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-hands-on"></i>
+        </div>
+        <h3 class="feature-title">Hands-on Learning</h3>
+        <p class="feature-description">
+          Learn by doing with practical, interactive labs that reinforce concepts through real-world scenarios and examples.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <h3 class="feature-title">$0 Learning Platform</h3>
+        <p class="feature-description">
+          All labs and resources are completely free, with no hidden costs or subscriptions required to advance your Kubernetes skills.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3 class="feature-title">Community Driven</h3>
+        <p class="feature-description">
+          Join our growing community of over 9,000+ DevOps engineers to share knowledge and get help with Kubernetes challenges.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- Load our scripts -->
-    <script src="cleanup.js"></script>
-    <script src="portal.js"></script>
-</body>
-</html>
+<section id="labs" class="labs-tutorials">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Popular Labs & Tutorials</h2>
+      <p class="section-description">
+        Start your Kubernetes journey with our most popular labs and tutorials
+      </p>
+    </div>
+    
+    <div class="tutorial-grid">
+      <div class="tutorial-card">
+        <div class="card-header">
+          <h3 class="card-title">Kubernetes Architecture</h3>
+          <div class="card-meta">
+            <i class="fas fa-tag"></i> Fundamentals
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-icon">
+            <i class="fas fa-sitemap"></i>
+          </div>
+          <p class="card-description">Deep dive into Kubernetes architecture, understanding the control plane, nodes, and how all components work together.</p>
+        </div>
+        <div class="card-footer">
+          <a href="./Kubernetes_Architecture.html" class="btn btn-primary">
+            <i class="fas fa-book"></i> Read Tutorial
+          </a>
+        </div>
+      </div>
+      
+      <div class="tutorial-card">
+        <div class="card-header">
+          <h3 class="card-title">Deploying Your First Pod</h3>
+          <div class="card-meta">
+            <i class="fas fa-tag"></i> Pods101
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-icon">
+            <i class="fas fa-cube"></i>
+          </div>
+          <p class="card-description">Learn how to deploy and manage your first Nginx pod, understand pod lifecycle, and execute commands against pods.</p>
+        </div>
+        <div class="card-footer">
+          <a href="./pods101/deploy-your-first-nginx-pod.html" class="btn btn-primary">
+            <i class="fas fa-flask"></i> Start Lab
+          </a>
+        </div>
+      </div>
+      
+      <div class="tutorial-card">
+        <div class="card-header">
+          <h3 class="card-title">ReplicaSets for High Availability</h3>
+          <div class="card-meta">
+            <i class="fas fa-tag"></i> ReplicaSet101
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-icon">
+            <i class="fas fa-clone"></i>
+          </div>
+          <p class="card-description">Master ReplicaSets to ensure high availability of your applications by managing multiple pod replicas automatically.</p>
+        </div>
+        <div class="card-footer">
+          <a href="./replicaset101/README.html" class="btn btn-primary">
+            <i class="fas fa-flask"></i> Start Lab
+          </a>
+        </div>
+      </div>
+      
+      <div class="tutorial-card">
+        <div class="card-header">
+          <h3 class="card-title">Kubernetes Services</h3>
+          <div class="card-meta">
+            <i class="fas fa-tag"></i> Services101
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-icon">
+            <i class="fas fa-network-wired"></i>
+          </div>
+          <p class="card-description">Understand how Kubernetes Services enable stable networking, service discovery, and load balancing for your applications.</p>
+        </div>
+        <div class="card-footer">
+          <a href="./Services101/README.html" class="btn btn-primary">
+            <i class="fas fa-flask"></i> Start Lab
+          </a>
+        </div>
+      </div>
+      
+      <div class="tutorial-card">
+        <div class="card-header">
+          <h3 class="card-title">Deployments in Kubernetes</h3>
+          <div class="card-meta">
+            <i class="fas fa-tag"></i> Deployment101
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-icon">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <p class="card-description">Learn to create, update, and rollback application deployments with Kubernetes Deployment resources.</p>
+        </div>
+        <div class="card-footer">
+          <a href="./Deployment101/README.html" class="btn btn-primary">
+            <i class="fas fa-flask"></i> Start Lab
+          </a>
+        </div>
+      </div>
+      
+      <div class="tutorial-card">
+        <div class="card-header">
+          <h3 class="card-title">StatefulSets for Stateful Apps</h3>
+          <div class="card-meta">
+            <i class="fas fa-tag"></i> StatefulSets101
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <p class="card-description">Master deploying stateful applications using Kubernetes StatefulSets with persistent storage and stable networking.</p>
+        </div>
+        <div class="card-footer">
+          <a href="./StatefulSets101/README.html" class="btn btn-primary">
+            <i class="fas fa-flask"></i> Start Lab
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <h2>Join Our Kubernetes Community</h2>
+    <p>Connect with 9,000+ DevOps engineers, contribute to the project, and get help with your Kubernetes journey.</p>
+    <div class="cta-buttons">
+      <a href="https://launchpass.com/collabnix" class="btn btn-primary" target="_blank">
+        <i class="fab fa-slack"></i> Join Slack Community
+      </a>
+      <a href="https://discord.gg/QEkCXAXYSe" class="btn btn-secondary" target="_blank">
+        <i class="fab fa-discord"></i> Join Discord
+      </a>
+    </div>
+  </div>
+</section>
