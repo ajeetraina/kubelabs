@@ -255,29 +255,26 @@ document.addEventListener('DOMContentLoaded', function() {
         loadLabContent(path);
     };
 
-    // Helper function to preload images and return promises
-    function preloadImages(html) {
-        const imgRegex = /<img[^>]+src="([^"]+)"/g;
-        const imgPromises = [];
-        let match;
-        
-        while (match = imgRegex.exec(html)) {
-            const imgUrl = match[1];
-            const imgPromise = new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => resolve(imgUrl);
-                img.onerror = () => {
-                    console.warn(`Failed to load image: ${imgUrl}`);
-                    // Replace broken image URLs with a placeholder
-                    html = html.replace(new RegExp(`src="${imgUrl.replace(/([.*+?^=!:${}()|\[\]\\])/g, '\\$1')}"`), 'src="https://via.placeholder.com/300x150?text=Image+Not+Found"');
-                    resolve(imgUrl);
-                };
-                img.src = imgUrl;
-            });
-            imgPromises.push(imgPromise);
-        }
-        
-        return Promise.all(imgPromises).then(() => html);
+    // Fix the image display by wrapping each image in a link and adding special styling
+    function enhanceImages(html) {
+        return html.replace(/<img([^>]+)>/g, function(match, imgAttrs) {
+            // Extract the src attribute
+            const srcMatch = imgAttrs.match(/src=['"]([^'"]+)['"]/);
+            if (!srcMatch) return match;
+            
+            const imgSrc = srcMatch[1];
+            const altMatch = imgAttrs.match(/alt=['"]([^'"]+)['"]/);
+            const altText = altMatch ? altMatch[1] : 'Image';
+            
+            // Wrap the image in a link and add placeholder styling
+            return `<div class="image-container">
+                <a href="${imgSrc}" target="_blank" class="image-link">
+                    <div class="image-placeholder">
+                        <span>👆 Click to view: ${altText}</span>
+                    </div>
+                </a>
+            </div>`;
+        });
     }
 
     // Load lab content
@@ -312,33 +309,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 html = MarkdownParser.fixRelativeImagePaths(html, path);
                 html = MarkdownParser.fixRelativeLinks(html, path);
                 
-                // Handle image preloading and fallbacks
-                html = await preloadImages(html);
+                // Enhance images with clickable placeholders
+                html = enhanceImages(html);
                 
                 // Update content area
                 contentArea.innerHTML = `<div class="lab-content">${html}</div>`;
                 
-                // Add special handling for !alt text issue
+                // Remove any !alt text occurrences
                 document.querySelectorAll('.lab-content').forEach(element => {
                     element.innerHTML = element.innerHTML.replace(/!alt text/g, '');
                 });
-                
-                // Add a small delay and then check for images
-                setTimeout(() => {
-                    const images = document.querySelectorAll('.lab-content img');
-                    if (images.length === 0) {
-                        console.info('No images found in the content.');
-                    } else {
-                        console.info(`Found ${images.length} images in the content.`);
-                        // Add load event listeners to images
-                        images.forEach(img => {
-                            img.onerror = function() {
-                                console.warn(`Image failed to load: ${img.src}`);
-                                img.src = 'https://via.placeholder.com/300x150?text=Image+Not+Found';
-                            };
-                        });
-                    }
-                }, 500);
             } catch (parseError) {
                 console.error('Error parsing markdown:', parseError);
                 // Fallback to simple formatting
