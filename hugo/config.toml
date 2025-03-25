@@ -3,6 +3,15 @@ languageCode = 'en-us'
 title = 'KubeLabs'
 theme = 'learn'
 
+# Ignore warnings about raw HTML in markdown files
+ignoreLogs = ['warning-goldmark-raw-html']
+
+# Allow raw HTML in markdown
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
 # For search functionality
 [outputs]
 home = [ 'HTML', 'RSS', 'JSON']
