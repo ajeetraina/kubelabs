@@ -47,6 +47,11 @@ jobs:
           cd docusaurus
           node scripts/migrate-content.js
           
+      - name: Flatten docs directory structure
+        run: |
+          cd docusaurus
+          node scripts/flatten-docs.js
+          
       - name: Fix title issues
         run: |
           cd docusaurus
