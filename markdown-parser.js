@@ -23,9 +23,17 @@ const MarkdownParser = {
     // Convert links
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
     
-    // Convert images - fix the !alt text issue
-    html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
-    // Also handle cases where there's no alt text in brackets
+    // Convert images - replace with GitHub HTML preview URLs
+    html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/g, function(match, alt, src) {
+      // Create a button that opens the image in a new tab
+      return `<div class="image-container">
+        <a href="${src}" target="_blank" class="image-button">
+          <span class="image-icon">🖼️</span> View Image: ${alt || 'Image'}
+        </a>
+      </div>`;
+    });
+    
+    // Remove any leftover !alt text
     html = html.replace(/!alt text/g, '');
     
     // Convert unordered lists
@@ -82,12 +90,12 @@ const MarkdownParser = {
     // Get the directory path
     const dirPath = basePath.substring(0, basePath.lastIndexOf('/') + 1);
     
-    // Replace relative image paths with absolute GitHub raw content paths
-    return html.replace(/src="(?!http)([^"]+)"/g, function(match, p1) {
+    // Replace image paths in our custom image buttons
+    return html.replace(/href="(?!http)([^"]+)"/g, function(match, p1) {
       if (p1.startsWith('./')) {
         p1 = p1.substring(2);
       }
-      return `src="https://raw.githubusercontent.com/ajeetraina/kubelabs/master/${dirPath}${p1}"`;
+      return `href="https://github.com/ajeetraina/kubelabs/blob/master/${dirPath}${p1}"`;
     });
   },
   
@@ -97,7 +105,7 @@ const MarkdownParser = {
     const dirPath = basePath.substring(0, basePath.lastIndexOf('/') + 1);
     
     // Replace relative links with JavaScript function calls to load content
-    return html.replace(/href="(?!http|mailto:|#)([^"]+)"/g, function(match, p1) {
+    return html.replace(/href="(?!http|mailto:|#|https:\/\/github\.com)([^"]+)"/g, function(match, p1) {
       if (p1.startsWith('./')) {
         p1 = p1.substring(2);
       }
