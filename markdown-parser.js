@@ -5,7 +5,12 @@ const MarkdownParser = {
   parse: function(markdown) {
     if (!markdown) return '';
     
-    let html = markdown;
+    // Pre-process markdown to clean up any problematic patterns
+    let cleanMarkdown = markdown;
+    // Replace any standalone !alt text with nothing
+    cleanMarkdown = cleanMarkdown.replace(/!alt text\b(?![\(\[])/g, '');
+    
+    let html = cleanMarkdown;
     
     // Convert headers
     html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
@@ -20,10 +25,7 @@ const MarkdownParser = {
     // Convert inline code
     html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
     
-    // Convert links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    
-    // Convert images - replace with GitHub HTML preview URLs
+    // Convert images with proper handling of alt text
     html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/g, function(match, alt, src) {
       // Create a button that opens the image in a new tab
       return `<div class="image-container">
@@ -33,7 +35,10 @@ const MarkdownParser = {
       </div>`;
     });
     
-    // Remove any leftover !alt text
+    // Convert links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    
+    // Remove any remaining instances of !alt text
     html = html.replace(/!alt text/g, '');
     
     // Convert unordered lists
@@ -81,6 +86,11 @@ const MarkdownParser = {
     
     // Clean up any extra whitespace or newlines
     html = html.replace(/\n\s*\n/g, '<br>');
+    
+    // Final cleanup of any !alt text instances
+    html = html.replace(/<p>!alt text<\/p>/g, '');
+    html = html.replace(/<p>!alt<\/p>/g, '');
+    html = html.replace(/!alt/g, '');
     
     return html;
   },
