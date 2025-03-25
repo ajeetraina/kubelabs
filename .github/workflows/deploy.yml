@@ -20,7 +20,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          # Remove cache dependency to prevent errors
       
       - name: Create required directories
         run: |
@@ -44,7 +43,12 @@ jobs:
       - name: Run content migration script
         run: |
           cd docusaurus
-          node scripts/migrate-content.js || echo "Migration script may have encountered issues, but continuing"
+          node scripts/migrate-content.js
+          
+      - name: Fix title issues
+        run: |
+          cd docusaurus
+          node scripts/fix-titles.js
       
       - name: Build site
         run: |
@@ -52,7 +56,6 @@ jobs:
           npm run build
       
       - name: Deploy to GitHub Pages
-        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
