@@ -255,28 +255,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadLabContent(path);
     };
 
-    // Fix the image display by wrapping each image in a link and adding special styling
-    function enhanceImages(html) {
-        return html.replace(/<img([^>]+)>/g, function(match, imgAttrs) {
-            // Extract the src attribute
-            const srcMatch = imgAttrs.match(/src=['"]([^'"]+)['"]/);
-            if (!srcMatch) return match;
-            
-            const imgSrc = srcMatch[1];
-            const altMatch = imgAttrs.match(/alt=['"]([^'"]+)['"]/);
-            const altText = altMatch ? altMatch[1] : 'Image';
-            
-            // Wrap the image in a link and add placeholder styling
-            return `<div class="image-container">
-                <a href="${imgSrc}" target="_blank" class="image-link">
-                    <div class="image-placeholder">
-                        <span>👆 Click to view: ${altText}</span>
-                    </div>
-                </a>
-            </div>`;
-        });
-    }
-
     // Load lab content
     async function loadLabContent(path, labItem) {
         try {
@@ -299,7 +277,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(`Failed to load content: ${response.status} ${response.statusText}`);
             }
             
-            const markdown = await response.text();
+            let markdown = await response.text();
+            
+            // Pre-process the markdown to fix the !alt text issue
+            markdown = markdown.replace(/!alt text/g, '');
             
             try {
                 // Convert markdown to HTML using our custom parser
@@ -309,16 +290,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 html = MarkdownParser.fixRelativeImagePaths(html, path);
                 html = MarkdownParser.fixRelativeLinks(html, path);
                 
-                // Enhance images with clickable placeholders
-                html = enhanceImages(html);
+                // Post-process the HTML to remove any remaining !alt text
+                html = html.replace(/!alt text/g, '');
+                html = html.replace(/<p>!alt text<\/p>/g, '');
+                html = html.replace(/<a[^>]*>!alt text<\/a>/g, '');
+                html = html.replace(/alt="!alt text"/g, 'alt=""');
                 
                 // Update content area
                 contentArea.innerHTML = `<div class="lab-content">${html}</div>`;
-                
-                // Remove any !alt text occurrences
-                document.querySelectorAll('.lab-content').forEach(element => {
-                    element.innerHTML = element.innerHTML.replace(/!alt text/g, '');
-                });
             } catch (parseError) {
                 console.error('Error parsing markdown:', parseError);
                 // Fallback to simple formatting
@@ -427,4 +406,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Start the portal
     initPortal();
-});
+});}
