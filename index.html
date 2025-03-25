@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeLabs - Kubernetes Hands-on Labs</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1>KubeLabs</h1>
+            <p>A Curated List of Kubernetes Labs and Tutorials</p>
+        </div>
+        <div class="header-actions">
+            <a href="https://github.com/ajeetraina/kubelabs" target="_blank" class="github-link">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+            <button id="menu-toggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>Labs & Tutorials</h3>
+                <input type="text" id="search-labs" placeholder="Search labs...">
+            </div>
+            <nav class="sidebar-menu">
+                <!-- This will be populated by JavaScript -->
+            </nav>
+            <div class="sidebar-footer">
+                <a href="https://launchpass.com/collabnix" target="_blank">Join our Community</a>
+                <a href="https://discord.gg/QEkCXAXYSe" target="_blank">Discord Server</a>
+                <a href="https://twitter.com/collabnix" target="_blank">Twitter</a>
+            </div>
+        </aside>
+
+        <main class="content" id="content">
+            <div class="welcome-content">
+                <h2>Get Started with Kubernetes</h2>
+                <p>Welcome to KubeLabs - Your Ultimate Hands-on Platform for Kubernetes Learning</p>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <i class="fas fa-dollar-sign"></i>
+                        <h3>$0 Learning Platform</h3>
+                        <p>Free and open source for all skill levels - from the ground up</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-book"></i>
+                        <h3>500+ Interactive Tutorials</h3>
+                        <p>Comprehensive collection of highly interactive Kubernetes tutorials and guides</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-laptop-code"></i>
+                        <h3>Browser-Based</h3>
+                        <p>Labs well tested on Kubernetes Cluster and can be run in your browser</p>
+                    </div>
+                </div>
+
+                <div class="getting-started">
+                    <h3>How to Use This Portal</h3>
+                    <p>This portal organizes all Kubernetes labs in an easy-to-navigate structure:</p>
+                    <ol>
+                        <li>Browse the labs by category in the left sidebar</li>
+                        <li>Click on any lab to view its content in this main area</li>
+                        <li>Follow along with the step-by-step instructions and examples</li>
+                        <li>Experiment in your own Kubernetes environment</li>
+                    </ol>
+                    <p>Select a category from the sidebar to begin your Kubernetes learning journey!</p>
+                </div>
+
+                <div class="featured-articles">
+                    <h3>Featured Articles</h3>
+                    <div class="articles-grid">
+                        <a href="https://collabnix.com/kubernetes-crashloopbackoff-error-what-it-is-and-how-to-fix-it/" class="article-card" target="_blank">
+                            <h4>Kubernetes CrashLoopBackOff Error: What It Is and How to Fix It?</h4>
+                        </a>
+                        <a href="https://collabnix.com/top-5-kubernetes-backup-tools-you-should-be-aware-of/" class="article-card" target="_blank">
+                            <h4>Top 5 Kubernetes Backup and Storage Solutions: Velero and More</h4>
+                        </a>
+                        <a href="https://collabnix.com/top-5-storage-provider-tools-for-kubernetes/" class="article-card" target="_blank">
+                            <h4>Top 5 Storage Provider Tools for Kubernetes</h4>
+                        </a>
+                        <a href="https://collabnix.com/top-5-alert-and-monitoring-tools-for-kubernetes/" class="article-card" target="_blank">
+                            <h4>Top 5 Alert and Monitoring Tools for Kubernetes</h4>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 KubeLabs | <a href="https://github.com/ajeetraina/kubelabs" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+
+    <script src="assets/js/portal.js"></script>
+</body>
+</html>
