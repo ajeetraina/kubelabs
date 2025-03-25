@@ -6,11 +6,17 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/collabnix/kubelabs)
 ![Twitter](https://img.shields.io/twitter/follow/collabnix?style=social)
 
+## 🚀 New Modernized Version Available!
+
+This repository has been updated to use Docusaurus, a modern React-based documentation framework. Check out the [deployment instructions](#deployment) for how to run it.
+
+## About KubeLabs
+
 A Curated List of Kubernetes Labs and Tutorials
 
 - A $0 Learning Platform for All Levels - from the ground Up
 - Over 500+ Highly Interactive Docker Tutorials and Guides
-- Well tested on Kubernetes Cluster  and can be run on Browser (no Infrastructure required)
+- Well tested on Kubernetes Cluster and can be run on Browser (no Infrastructure required)
 
 # 📝 Join our Community
 
@@ -19,6 +25,52 @@ A Curated List of Kubernetes Labs and Tutorials
 - Fork, Contribute & Share via [Kubelabs GITHUB Repository](https://github.com/collabnix/kubelabs)
 -  Click and Follow us over Twitter [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/fold_left.svg?style=social&label=Follow%20%40collabnix)](https://twitter.com/collabnix)
 -  Access [500+ blogs](https://collabnix.com) on Docker, Kubernetes and Cloud-Native Technology
+
+<a id="deployment"></a>
+## Deployment
+
+### Local Development
+
+```bash
+# Install dependencies
+cd docusaurus
+npm install
+
+# Run the content migration script
+node scripts/migrate-content.js
+
+# Start the development server
+npm start
+```
+
+### Building for Production
+
+```bash
+cd docusaurus
+npm install
+node scripts/migrate-content.js
+npm run build
+```
+
+### Docker Deployment
+
+```bash
+# Build the Docker image
+docker build -t kubelabs:latest -f docusaurus/Dockerfile .
+
+# Run the container
+docker run -p 8080:80 kubelabs:latest
+```
+
+### Kubernetes Deployment
+
+```bash
+# Apply namespace
+kubectl apply -f k8s/namespace.yaml
+
+# Apply all resources
+kubectl apply -f k8s/
+```
 
 # Featured Articles
 
@@ -408,7 +460,3 @@ docker run --rm \
 
 
 [Next:  Kubernetes201](https://github.com/collabnix/kubelabs/blob/master/201/README.md)
-
-
-
-
