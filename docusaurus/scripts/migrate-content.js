@@ -54,8 +54,24 @@ const processReadme = () => {
     content = content.replace(/\]\((\/[^)]+)\.md/g, ']($1');
     
     fs.writeFileSync(path.join(DOCS_DIR, 'intro.md'), content);
-    console.log('✅ Processed README.md as intro.md');
+    console.log('\u2705 Processed README.md as intro.md');
   }
+};
+
+// Extract title from content or generate a default title
+const extractTitle = (content, filePath) => {
+  // Try to get the first heading
+  const titleMatch = content.match(/^#\s+(.+)$/m);
+  if (titleMatch && titleMatch[1]) {
+    return titleMatch[1].trim();
+  }
+  
+  // Fall back to generating a title from the filename
+  const basename = path.basename(filePath, '.md');
+  return basename
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
 // Process a markdown file for Docusaurus
@@ -64,10 +80,10 @@ const processMarkdownFile = (filePath) => {
   const docId = relativePath.replace(/\.md$/, '').replace(/\//g, '_');
   
   let content = fs.readFileSync(filePath, 'utf8');
-  const title = content.split('\n')[0].replace(/^#\s+/, '');
+  const title = extractTitle(content, filePath);
   
   // Add front matter
-  content = `---\nid: ${docId}\ntitle: ${title || 'Kubernetes Tutorial'}\n---\n\n${content}`;
+  content = `---\nid: ${docId}\ntitle: "${title}"\n---\n\n${content}`;
   
   // Fix relative links
   content = content.replace(/\]\(\.\//g, '](/');
@@ -80,12 +96,12 @@ const processMarkdownFile = (filePath) => {
   }
   
   fs.writeFileSync(path.join(DOCS_DIR, relativePath), content);
-  console.log(`✅ Processed ${relativePath}`);
+  console.log(`\u2705 Processed ${relativePath}`);
 };
 
 // Main execution
 const main = () => {
-  console.log('🚀 Starting markdown migration to Docusaurus format...');
+  console.log('\ud83d\ude80 Starting markdown migration to Docusaurus format...');
   
   // Process README first
   processReadme();
@@ -94,7 +110,7 @@ const main = () => {
   const markdownFiles = findMarkdownFiles(ROOT_DIR);
   markdownFiles.forEach(processMarkdownFile);
   
-  console.log(`\n✨ Successfully processed ${markdownFiles.length + 1} files!`);
+  console.log(`\n\u2728 Successfully processed ${markdownFiles.length + 1} files!`);
 };
 
 main();
