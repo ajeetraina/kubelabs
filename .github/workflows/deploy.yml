@@ -21,10 +21,12 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Create required directories
+      - name: Create required directories and clean existing docs
         run: |
-          mkdir -p docusaurus/docs
           mkdir -p docusaurus/static/img
+          # Clean out docs directory to avoid issues with old files
+          rm -rf docusaurus/docs
+          mkdir -p docusaurus/docs
       
       - name: Install dependencies
         run: |
@@ -49,6 +51,12 @@ jobs:
         run: |
           cd docusaurus
           node scripts/fix-titles.js
+      
+      - name: List generated files (for debugging)
+        run: |
+          find docusaurus/docs -type f | sort
+          echo "---"
+          cat docusaurus/sidebars.js
       
       - name: Build site
         run: |
