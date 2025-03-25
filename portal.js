@@ -1,4 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if MarkdownParser is available
+    if (typeof MarkdownParser === 'undefined') {
+        console.error('MarkdownParser is not defined. Please make sure markdown-parser.js is loaded properly.');
+        // Define a simple fallback parser
+        window.MarkdownParser = {
+            parse: function(markdown) {
+                return '<p>' + markdown.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+            },
+            fixRelativeImagePaths: function(html, basePath) {
+                return html;
+            },
+            fixRelativeLinks: function(html, basePath) {
+                return html;
+            }
+        };
+    }
+
     // Lab categories and structure based on the README
     const labCategories = [
         {
@@ -262,20 +279,30 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const markdown = await response.text();
             
-            // Convert markdown to HTML using our custom parser
-            let html = MarkdownParser.parse(markdown);
-            
-            // Fix relative paths
-            html = MarkdownParser.fixRelativeImagePaths(html, path);
-            html = MarkdownParser.fixRelativeLinks(html, path);
-            
-            // Update content area
-            contentArea.innerHTML = `<div class="lab-content">${html}</div>`;
+            try {
+                // Convert markdown to HTML using our custom parser
+                let html = MarkdownParser.parse(markdown);
+                
+                // Fix relative paths
+                html = MarkdownParser.fixRelativeImagePaths(html, path);
+                html = MarkdownParser.fixRelativeLinks(html, path);
+                
+                // Update content area
+                contentArea.innerHTML = `<div class="lab-content">${html}</div>`;
+            } catch (parseError) {
+                console.error('Error parsing markdown:', parseError);
+                // Fallback to simple formatting
+                contentArea.innerHTML = `<div class="lab-content"><pre>${markdown}</pre></div>`;
+            }
             
             // Initialize syntax highlighting for code blocks
             if (window.hljs) {
                 document.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightBlock(block);
+                    try {
+                        hljs.highlightBlock(block);
+                    } catch (e) {
+                        console.warn('Error highlighting code:', e);
+                    }
                 });
             }
             
