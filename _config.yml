@@ -1,10 +1,13 @@
-show_downloads: true
-google_analytics:
-theme: jekyll-theme-cayman
-jekyll_admin:
-  hidden_links:
-    - posts
-    - pages
-    - staticfiles
-    - datafiles
-    - configuration
+title: KubeLabs
+description: A Curated List of Kubernetes Labs and Tutorials
+baseurl: ""
+url: "https://kubelabs.ajeetraina.com"
+repository: ajeetraina/kubelabs
+theme: jekyll-theme-hacker
+
+plugins:
+  - jekyll-sitemap
+
+include:
+  - assets
+  - CNAME
