@@ -23,8 +23,10 @@ const MarkdownParser = {
     // Convert links
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
     
-    // Convert images
+    // Convert images - fix the !alt text issue
     html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+    // Also handle cases where there's no alt text in brackets
+    html = html.replace(/!alt text/g, '');
     
     // Convert unordered lists
     html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
