@@ -12,12 +12,12 @@ const sidebars = {
     {
       type: 'category',
       label: 'Pods',
-      items: ['pods101_pods101_deploy-your-first-nginx-pod', 'pods101_pods101_FAQs', 'pods101_tools_pods101_tools_kubetail'] 
+      items: ['pods101_pods101_deploy-your-first-nginx-pod', 'pods101_pods101_FAQs']
     },
     {
       type: 'category',
       label: 'ConfigMaps',
-      items: ['ConfigMaps101_ConfigMaps101_what-are-configmaps', 'secerts_configmaps101_secerts_configmaps101_secrets-configmaps']
+      items: ['ConfigMaps101_ConfigMaps101_what-are-configmaps']
     },
     {
       type: 'category',
