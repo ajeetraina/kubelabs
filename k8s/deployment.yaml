@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubelabs
+  namespace: kubelabs
+  labels:
+    app: kubelabs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kubelabs
+  template:
+    metadata:
+      labels:
+        app: kubelabs
+    spec:
+      containers:
+      - name: kubelabs
+        image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/kubelabs:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
