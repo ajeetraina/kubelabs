@@ -1,0 +1,39 @@
+baseURL = 'https://kubelabs.ajeetraina.com/'
+languageCode = 'en-us'
+title = 'KubeLabs'
+theme = 'learn'
+
+# For search functionality
+[outputs]
+home = [ 'HTML', 'RSS', 'JSON']
+
+[params]
+  # Change default color scheme with a variant one. Can be "red", "blue", "green".
+  themeVariant = "kubernetes"
+  # Description of the site, will be used in meta information
+  description = "A Curated List of Kubernetes Labs and Tutorials"
+  # Author of the site, will be used in meta information
+  author = "Ajeet Raina"
+  # Shows a checkmark for visited pages on the menu
+  showVisitedLinks = true
+  # Disable search function. It will hide search bar
+  disableSearch = false
+  # Javascript and CSS cache are automatically busted when new version of site is generated. 
+  # Set this to true to disable this behavior (some proxies don't handle well this optimization)
+  disableAssetsBusting = false
+  # Set this to true to disable copy-to-clipboard button for inline code.
+  disableInlineCopyToClipBoard = false
+  # A title for shortcuts in menu is set by default. Set this to true to disable it. 
+  disableShortcutsTitle = false
+
+# For menu adjustments
+[menu]
+  [[menu.shortcuts]] 
+    name = "<i class='fab fa-github'></i> Github repo"
+    url = "https://github.com/ajeetraina/kubelabs"
+    weight = 10
+
+  [[menu.shortcuts]]
+    name = "<i class='fas fa-bookmark'></i> Collabnix Community"
+    url = "https://collabnix.com"
+    weight = 20
