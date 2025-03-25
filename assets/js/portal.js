@@ -233,6 +233,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Fix relative image paths in markdown content
+    function fixRelativeImagePaths(html, path) {
+        // Get the directory path
+        const dirPath = path.substring(0, path.lastIndexOf('/') + 1);
+        
+        // Replace relative image paths with absolute GitHub raw content paths
+        return html.replace(/src="(?!http)([^"]+)"/g, function(match, p1) {
+            if (p1.startsWith('./')) {
+                p1 = p1.substring(2);
+            }
+            return `src="https://raw.githubusercontent.com/ajeetraina/kubelabs/master/${dirPath}${p1}"`;
+        });
+    }
+
+    // Fix relative links in markdown content
+    function fixRelativeLinks(html, path) {
+        // Get the directory path
+        const dirPath = path.substring(0, path.lastIndexOf('/') + 1);
+        
+        // Replace relative links with JavaScript function calls to load content
+        return html.replace(/href="(?!http|mailto:|#)([^"]+)"/g, function(match, p1) {
+            if (p1.startsWith('./')) {
+                p1 = p1.substring(2);
+            }
+            const fullPath = dirPath + p1;
+            return `href="javascript:void(0)" onclick="window.loadLabContentFromPath('${fullPath}')"`;
+        });
+    }
+
+    // Load lab content from path (for use with onclick events)
+    window.loadLabContentFromPath = function(path) {
+        loadLabContent(path);
+    };
+
     // Load lab content
     async function loadLabContent(path, labItem) {
         try {
@@ -257,11 +291,31 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const markdown = await response.text();
             
-            // Convert markdown to HTML (using a simple converter)
-            const html = convertMarkdownToHtml(markdown);
+            // Convert markdown to HTML using marked.js
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    }
+                    return hljs.highlightAuto(code).value;
+                },
+                breaks: true,
+                gfm: true
+            });
+            
+            let html = marked.parse(markdown);
+            
+            // Fix relative paths
+            html = fixRelativeImagePaths(html, path);
+            html = fixRelativeLinks(html, path);
             
             // Update content area
             contentArea.innerHTML = `<div class="lab-content">${html}</div>`;
+            
+            // Initialize syntax highlighting for code blocks
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
             
             // If on mobile, close the sidebar after selecting content
             if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
@@ -272,48 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
             window.scrollTo(0, 0);
         } catch (error) {
             console.error('Error loading content:', error);
-            contentArea.innerHTML = `<div class="error"><p>Error loading content: ${error.message}</p></div>`;
+            contentArea.innerHTML = `<div class="error"><p>Error loading content: ${error.message}</p><p>Try refreshing the page or selecting a different lab.</p></div>`;
         }
-    }
-
-    // Very simple markdown to HTML converter
-    function convertMarkdownToHtml(markdown) {
-        // This is a basic implementation - consider using a library like marked.js for production
-        let html = markdown;
-
-        // Convert headers
-        html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-        html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-        html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-        html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
-
-        // Convert code blocks
-        html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-
-        // Convert inline code
-        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-        // Convert links
-        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-
-        // Convert images
-        html = html.replace(/!\[([^\]]+)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
-
-        // Convert lists
-        html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-        html = html.replace(/(<li>.+<\/li>\n)+/g, '<ul>$&</ul>');
-
-        // Convert numbered lists
-        html = html.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
-        html = html.replace(/(<li>.+<\/li>\n)+/g, '<ol>$&</ol>');
-
-        // Convert blockquotes
-        html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
-
-        // Convert paragraphs (simple approach)
-        html = html.replace(/^([^<].+)$/gm, '<p>$1</p>');
-
-        return html;
     }
 
     // Handle search
