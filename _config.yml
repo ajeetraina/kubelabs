@@ -1,12 +1,52 @@
+# Site settings
 title: KubeLabs
 description: A Curated List of Kubernetes Labs and Tutorials
-baseurl: ""
+baseurl: "" # Empty for local development
 url: "https://kubelabs.ajeetraina.com"
 repository: ajeetraina/kubelabs
 
+# Build settings
+markdown: kramdown
+highlighter: rouge
+safe: true
+
+# Plugins
 plugins:
   - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:path/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+  - scope:
+      path: "_docs"
+    values:
+      layout: "doc"
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .github
+  - docusaurus
+  - hugo
+  - LICENSE
+  
+# Configure sass
+sass:
+  style: compressed
 
 include:
+  - _pages
   - assets
-  - CNAME
