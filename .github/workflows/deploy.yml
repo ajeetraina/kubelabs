@@ -1,0 +1,58 @@
+name: Deploy KubeLabs
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'docusaurus/package-lock.json'
+      
+      - name: Install dependencies
+        run: |
+          cd docusaurus
+          npm ci
+      
+      - name: Run content migration script
+        run: |
+          cd docusaurus
+          node scripts/migrate-content.js
+      
+      - name: Build site
+        run: |
+          cd docusaurus
+          npm run build
+      
+      - name: Build and push Docker image
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker build -t ghcr.io/${{ github.repository_owner }}/kubelabs:latest -f docusaurus/Dockerfile .
+          docker push ghcr.io/${{ github.repository_owner }}/kubelabs:latest
+      
+      - name: Deploy to GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docusaurus/build
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy to GitHub Pages'
