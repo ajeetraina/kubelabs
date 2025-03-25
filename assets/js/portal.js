@@ -233,35 +233,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Fix relative image paths in markdown content
-    function fixRelativeImagePaths(html, path) {
-        // Get the directory path
-        const dirPath = path.substring(0, path.lastIndexOf('/') + 1);
-        
-        // Replace relative image paths with absolute GitHub raw content paths
-        return html.replace(/src="(?!http)([^"]+)"/g, function(match, p1) {
-            if (p1.startsWith('./')) {
-                p1 = p1.substring(2);
-            }
-            return `src="https://raw.githubusercontent.com/ajeetraina/kubelabs/master/${dirPath}${p1}"`;
-        });
-    }
-
-    // Fix relative links in markdown content
-    function fixRelativeLinks(html, path) {
-        // Get the directory path
-        const dirPath = path.substring(0, path.lastIndexOf('/') + 1);
-        
-        // Replace relative links with JavaScript function calls to load content
-        return html.replace(/href="(?!http|mailto:|#)([^"]+)"/g, function(match, p1) {
-            if (p1.startsWith('./')) {
-                p1 = p1.substring(2);
-            }
-            const fullPath = dirPath + p1;
-            return `href="javascript:void(0)" onclick="window.loadLabContentFromPath('${fullPath}')"`;
-        });
-    }
-
     // Load lab content from path (for use with onclick events)
     window.loadLabContentFromPath = function(path) {
         loadLabContent(path);
@@ -291,23 +262,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const markdown = await response.text();
             
-            // Convert markdown to HTML using marked.js
-            marked.setOptions({
-                highlight: function(code, lang) {
-                    if (lang && hljs.getLanguage(lang)) {
-                        return hljs.highlight(code, { language: lang }).value;
-                    }
-                    return hljs.highlightAuto(code).value;
-                },
-                breaks: true,
-                gfm: true
-            });
-            
-            let html = marked.parse(markdown);
+            // Convert markdown to HTML using our custom parser
+            let html = MarkdownParser.parse(markdown);
             
             // Fix relative paths
-            html = fixRelativeImagePaths(html, path);
-            html = fixRelativeLinks(html, path);
+            html = MarkdownParser.fixRelativeImagePaths(html, path);
+            html = MarkdownParser.fixRelativeLinks(html, path);
             
             // Update content area
             contentArea.innerHTML = `<div class="lab-content">${html}</div>`;
