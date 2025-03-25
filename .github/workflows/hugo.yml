@@ -1,0 +1,70 @@
+name: Deploy Hugo Site
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Create required directories
+        run: |
+          mkdir -p hugo/content
+          mkdir -p hugo/themes
+      
+      - name: Run content migration script
+        run: |
+          cd hugo
+          node scripts/migrate.js
+      
+      - name: Download Hugo theme
+        run: |
+          mkdir -p hugo/themes/learn
+          wget -qO- https://github.com/matcornic/hugo-theme-learn/archive/refs/heads/master.tar.gz | \
+          tar -xz --strip-components=1 -C hugo/themes/learn
+      
+      - name: List content files (for debugging)
+        run: find hugo/content -type f | sort
+      
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest'
+          extended: true
+      
+      - name: Build site
+        run: |
+          cd hugo
+          hugo --minify
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./hugo/public
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy to GitHub Pages'
+      
+      - name: Build and push Docker image
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker build -t ghcr.io/${{ github.repository_owner }}/kubelabs:latest -f hugo/Dockerfile .
+          docker push ghcr.io/${{ github.repository_owner }}/kubelabs:latest
