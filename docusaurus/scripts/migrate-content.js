@@ -62,7 +62,8 @@ const processReadme = () => {
     allDocuments.push({
       id: 'intro',
       title: 'Introduction to KubeLabs',
-      path: 'intro.md'
+      path: 'intro.md',
+      category: 'Introduction'
     });
   }
 };
@@ -86,7 +87,7 @@ const extractTitle = (content, filePath) => {
 // Generate a docusaurus-friendly ID from a file path
 const generateDocId = (filePath) => {
   const relativePath = path.relative(ROOT_DIR, filePath);
-  return relativePath.replace(/\.md$/, '').replace(/\//g, '/'); // Keep slashes
+  return relativePath.replace(/\.md$/, '').replace(/\//g, '_'); // Replace slashes with underscores
 };
 
 // Process a markdown file for Docusaurus
@@ -96,6 +97,10 @@ const processMarkdownFile = (filePath) => {
   
   let content = fs.readFileSync(filePath, 'utf8');
   const title = extractTitle(content, filePath);
+  
+  // Determine category from path
+  const pathParts = relativePath.split('/');
+  const category = pathParts[0] === '_site' ? (pathParts[1] || 'Uncategorized') : (pathParts[0] || 'Uncategorized');
   
   // Add front matter
   content = `---\nid: ${docId}\ntitle: "${title}"\n---\n\n${content}`;
@@ -117,7 +122,8 @@ const processMarkdownFile = (filePath) => {
   allDocuments.push({
     id: docId,
     title: title,
-    path: relativePath
+    path: relativePath,
+    category: category
   });
 };
 
@@ -127,40 +133,46 @@ const generateSidebar = () => {
   const categories = {};
   
   allDocuments.forEach(doc => {
-    // Skip the intro doc as it will be handled separately
-    if (doc.id === 'intro') return;
-    
-    const parts = doc.id.split('/');
-    const category = parts[0];
-    
-    if (!categories[category]) {
-      categories[category] = [];
+    if (!categories[doc.category]) {
+      categories[doc.category] = [];
     }
     
-    categories[category].push(doc.id);
+    categories[doc.category].push(doc.id);
   });
   
   // Create the sidebar configuration
-  let sidebarConfig = 'const sidebars = {\n';
+  let sidebarConfig = '/** @type {import(\'@docusaurus/plugin-content-docs\').SidebarsConfig} */\n';
+  sidebarConfig += 'const sidebars = {\n';
   sidebarConfig += '  tutorialSidebar: [\n';
   
-  // Add intro document first
-  sidebarConfig += "    'intro',\n";
-  
+  // Order categories alphabetically, but put Introduction first
+  const orderedCategories = Object.keys(categories).sort((a, b) => {
+    if (a === 'Introduction') return -1;
+    if (b === 'Introduction') return 1;
+    return a.localeCompare(b);
+  });
+
   // Add each category
-  Object.keys(categories).sort().forEach(category => {
-    sidebarConfig += '    {\n';
-    sidebarConfig += `      type: 'category',\n`;
-    sidebarConfig += `      label: '${category}',\n`;
-    sidebarConfig += '      items: [\n';
-    
-    // Add all documents in this category
-    categories[category].sort().forEach(docId => {
-      sidebarConfig += `        '${docId}',\n`;
-    });
-    
-    sidebarConfig += '      ],\n';
-    sidebarConfig += '    },\n';
+  orderedCategories.forEach(category => {
+    // For the Introduction category, just use the items directly
+    if (category === 'Introduction' && categories[category].includes('intro')) {
+      categories[category].forEach(docId => {
+        sidebarConfig += `    '${docId}',\n`;
+      });
+    } else {
+      sidebarConfig += '    {\n';
+      sidebarConfig += `      type: 'category',\n`;
+      sidebarConfig += `      label: '${category}',\n`;
+      sidebarConfig += '      items: [\n';
+      
+      // Add all documents in this category
+      categories[category].sort().forEach(docId => {
+        sidebarConfig += `        '${docId}',\n`;
+      });
+      
+      sidebarConfig += '      ],\n';
+      sidebarConfig += '    },\n';
+    }
   });
   
   sidebarConfig += '  ],\n';
