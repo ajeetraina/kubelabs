@@ -34,10 +34,11 @@ jobs:
         run: |
           cd docusaurus
           npm install
-          # Install missing @docusaurus/plugin-ideal-image dependency
+          # Install required dependencies
           npm install --save @docusaurus/plugin-ideal-image
+          npm install --save @docusaurus/plugin-client-redirects
       
-      - name: Create placeholder logo
+      - name: Create placeholder favicon and logo
         run: |
           # Create a basic placeholder if the logo doesn't exist
           if [ ! -f docusaurus/static/img/kubernetes-logo.png ]; then
@@ -45,6 +46,18 @@ jobs:
             # Use a public URL for a sample logo
             curl -o docusaurus/static/img/kubernetes-logo.png https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png || echo "Could not download logo, but continuing"
           fi
+          
+          # Create a favicon if it doesn't exist
+          if [ ! -f docusaurus/static/img/favicon.ico ]; then
+            echo "Creating placeholder favicon"
+            # Convert the logo to a favicon
+            curl -o docusaurus/static/img/favicon.ico https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png || echo "Could not download favicon, but continuing"
+          fi
+      
+      - name: Copy content from README.md
+        run: |
+          # Ensure we have content for the intro page
+          cp README.md docusaurus/docs/intro.md
       
       - name: Run content migration script
         run: |
@@ -54,6 +67,85 @@ jobs:
             node scripts/migrate-content.js
           else
             echo "Migration script not found, skipping"
+            # Create a basic migrate-content.js script if it doesn't exist
+            mkdir -p scripts
+            cat > scripts/migrate-content.js << 'EOF'
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Get Markdown files from the repository root
+            const rootDir = path.join(__dirname, '../..');
+            const docsDir = path.join(__dirname, '../docs');
+            
+            // Ensure the docs directory exists
+            if (!fs.existsSync(docsDir)) {
+                fs.mkdirSync(docsDir, { recursive: true });
+            }
+            
+            // Function to recursively find Markdown files
+            function findMarkdownFiles(dir, fileList = []) {
+                const files = fs.readdirSync(dir);
+                
+                files.forEach(file => {
+                    const filePath = path.join(dir, file);
+                    const stat = fs.statSync(filePath);
+                    
+                    if (stat.isDirectory() && file !== 'node_modules' && file !== '.git' && file !== 'docusaurus') {
+                        findMarkdownFiles(filePath, fileList);
+                    } else if (file.endsWith('.md') && file !== 'README.md') {
+                        fileList.push(filePath);
+                    }
+                });
+                
+                return fileList;
+            }
+            
+            // Get all Markdown files
+            const markdownFiles = findMarkdownFiles(rootDir);
+            
+            // Process each Markdown file
+            markdownFiles.forEach(filePath => {
+                try {
+                    // Get the relative path from the repository root
+                    const relativePath = path.relative(rootDir, filePath);
+                    console.log(`Processing: ${relativePath}`);
+                    
+                    // Read the content
+                    let content = fs.readFileSync(filePath, 'utf8');
+                    
+                    // Add frontmatter if it doesn't exist
+                    if (!content.startsWith('---')) {
+                        const fileName = path.basename(filePath, '.md');
+                        let title = fileName.replace(/_/g, ' ').replace(/-/g, ' ');
+                        
+                        // Make title more readable
+                        title = title.split(' ').map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ');
+                        
+                        content = `---\ntitle: ${title}\n---\n\n${content}`;
+                    }
+                    
+                    // Create the destination path
+                    const destPath = path.join(docsDir, relativePath);
+                    const destDir = path.dirname(destPath);
+                    
+                    // Create the directory if it doesn't exist
+                    if (!fs.existsSync(destDir)) {
+                        fs.mkdirSync(destDir, { recursive: true });
+                    }
+                    
+                    // Write the content
+                    fs.writeFileSync(destPath, content);
+                    console.log(`  → Copied to: ${path.relative(rootDir, destPath)}`);
+                } catch (error) {
+                    console.error(`Error processing ${filePath}: ${error.message}`);
+                }
+            });
+            
+            console.log(`Processed ${markdownFiles.length} Markdown files`);
+            EOF
+            node scripts/migrate-content.js
           fi
           
       - name: Flatten docs directory structure
@@ -81,6 +173,9 @@ jobs:
           find docusaurus/docs -type f | sort
           echo "---"
           cat docusaurus/sidebars.js
+          echo "---"
+          echo "docusaurus.config.js:"
+          cat docusaurus/docusaurus.config.js
       
       - name: Build site
         run: |
@@ -96,6 +191,7 @@ jobs:
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
           commit_message: 'Deploy to GitHub Pages'
+          cname: kubelabs.ajeetraina.com  # Added CNAME
       
       - name: Build and push Docker image
         if: github.event_name != 'pull_request'
