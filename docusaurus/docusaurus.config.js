@@ -26,6 +26,7 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/ajeetraina/kubelabs/tree/master/',
+          routeBasePath: '/',
         },
         blog: {
           showReadingTime: true,
@@ -41,6 +42,17 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      docs: {
+        sidebar: {
+          hideable: true,
+          autoCollapseCategories: true,
+        },
+      },
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: false,
+        respectPrefersColorScheme: true,
+      },
       image: 'img/kubernetes-logo.png',
       navbar: {
         title: 'KubeLabs',
@@ -53,7 +65,22 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Tutorials',
+            label: 'Labs & Tutorials',
+          },
+          {
+            to: '/category/core-kubernetes-concepts',
+            label: 'Core Concepts',
+            position: 'left',
+          },
+          {
+            to: '/category/cloud-providers',
+            label: 'Cloud Providers',
+            position: 'left',
+          },
+          {
+            to: '/category/advanced-topics',
+            label: 'Advanced Topics',
+            position: 'left',
           },
           {
             href: 'https://github.com/ajeetraina/kubelabs',
@@ -69,8 +96,16 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
+                label: 'Introduction',
+                to: '/intro',
+              },
+              {
+                label: 'Getting Started',
+                to: '/category/getting-started',
+              },
+              {
+                label: 'Core Concepts',
+                to: '/category/core-kubernetes-concepts',
               },
             ],
           },
@@ -110,8 +145,27 @@ const config = {
       prism: {
         theme: require('prism-react-renderer').themes.github,
         darkTheme: require('prism-react-renderer').themes.dracula,
+        additionalLanguages: ['bash', 'yaml', 'docker'],
+      },
+      tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 4,
       },
     }),
+    
+  // Additional plugins for better user experience
+  plugins: [
+    [
+      '@docusaurus/plugin-ideal-image',
+      {
+        quality: 85,
+        max: 1030,
+        min: 640,
+        steps: 2,
+        disableInDev: false,
+      },
+    ],
+  ],
 };
 
 module.exports = config;
