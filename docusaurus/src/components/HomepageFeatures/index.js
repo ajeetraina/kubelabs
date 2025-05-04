@@ -4,37 +4,43 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Hands-on Learning',
+    title: 'Comprehensive Kubernetes Labs',
+    Svg: require('@site/static/img/kubernetes-icon.svg').default,
     description: (
       <>
-        Learn Kubernetes by doing. Our labs provide practical
-        experience with real-world scenarios.
+        KubeLabs offers hands-on labs and tutorials covering all aspects of Kubernetes, 
+        from beginner basics to advanced concepts.
       </>
     ),
   },
   {
-    title: 'From Basics to Advanced',
+    title: 'Cloud Provider Integrations',
+    Svg: require('@site/static/img/cloud-icon.svg').default,
     description: (
       <>
-        Start with simple pods and work your way up to complex
-        architectures with networking, storage, and security.
+        Learn how to deploy and manage Kubernetes across major cloud providers 
+        including AWS (EKS), Azure (AKS), Google Cloud (GKE), and more.
       </>
     ),
   },
   {
-    title: 'Community Driven',
+    title: 'Community-Driven',
+    Svg: require('@site/static/img/community-icon.svg').default,
     description: (
       <>
-        Join thousands of DevOps engineers in our community
-        on Slack and Discord to share knowledge and get help.
+        Join our growing community of Kubernetes enthusiasts. 
+        All labs are open-source and regularly updated with the latest Kubernetes best practices.
       </>
     ),
   },
 ];
 
-function Feature({title, description}) {
+function Feature({Svg, title, description}) {
   return (
     <div className={clsx('col col--4')}>
+      <div className="text--center">
+        <Svg className={styles.featureSvg} role="img" />
+      </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>
         <p>{description}</p>
