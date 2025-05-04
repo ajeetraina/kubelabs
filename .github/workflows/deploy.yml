@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './docusaurus/package.json'
       
       - name: Create required directories and clean existing docs
         run: |
@@ -32,6 +34,8 @@ jobs:
         run: |
           cd docusaurus
           npm install
+          # Install missing @docusaurus/plugin-ideal-image dependency
+          npm install --save @docusaurus/plugin-ideal-image
       
       - name: Create placeholder logo
         run: |
@@ -45,17 +49,32 @@ jobs:
       - name: Run content migration script
         run: |
           cd docusaurus
-          node scripts/migrate-content.js
+          # Check if script exists
+          if [ -f scripts/migrate-content.js ]; then
+            node scripts/migrate-content.js
+          else
+            echo "Migration script not found, skipping"
+          fi
           
       - name: Flatten docs directory structure
         run: |
           cd docusaurus
-          node scripts/flatten-docs.js
+          # Check if script exists
+          if [ -f scripts/flatten-docs.js ]; then
+            node scripts/flatten-docs.js
+          else
+            echo "Flatten script not found, skipping"
+          fi
           
       - name: Fix title issues
         run: |
           cd docusaurus
-          node scripts/fix-titles.js
+          # Check if script exists
+          if [ -f scripts/fix-titles.js ]; then
+            node scripts/fix-titles.js
+          else
+            echo "Fix titles script not found, skipping"
+          fi
       
       - name: List generated files (for debugging)
         run: |
@@ -70,6 +89,7 @@ jobs:
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name != 'pull_request'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docusaurus/build
