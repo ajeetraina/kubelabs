@@ -6,6 +6,7 @@
  * - Adding front matter
  * - Converting relative links
  * - Ensuring proper image paths
+ * - Organizing content into category-based directories
  */
 
 const fs = require('fs');
@@ -22,6 +23,53 @@ let allDocuments = [];
 if (!fs.existsSync(DOCS_DIR)) {
   fs.mkdirSync(DOCS_DIR, { recursive: true });
 }
+
+// Content categories for organizing files
+const contentCategories = {
+  'pods101': 'core-kubernetes/pods',
+  'replicaset101': 'core-kubernetes/replicasets',
+  'Deployment101': 'core-kubernetes/deployments',
+  'Services101': 'core-kubernetes/services',
+  'ConfigMaps101': 'core-kubernetes/configmaps',
+  'StatefulSets101': 'workloads/statefulsets',
+  'DaemonSet101': 'workloads/daemonsets',
+  'Jobs101': 'workloads/jobs',
+  'Scheduler101': 'scheduling',
+  'Network_Policies101': 'networking/policies',
+  'Ingress101': 'networking/ingress',
+  'ClusterNetworking101': 'networking/cluster',
+  'RBAC101': 'security',
+  'Security101': 'security',
+  'Monitoring101': 'observability/monitoring',
+  'Logging101': 'observability/logging',
+  'Helm101': 'package-management',
+  'GitOps101': 'gitops',
+  'EKS101': 'cloud-providers/aws',
+  'AKS101': 'cloud-providers/azure',
+  'GKE101': 'cloud-providers/gcp',
+  'LKE101': 'cloud-providers/linode',
+  'Keda101': 'advanced-topics/keda',
+  'Autoscaler101': 'scheduling/autoscaling',
+  'Terraform101': 'advanced-topics/terraform',
+  'DisasterRecovery101': 'advanced-topics/dr',
+  'KubeSphere': 'tools/kubesphere',
+  'Loft101': 'tools/loft',
+  'Shipa101': 'tools/shipa',
+  'DevSpace101': 'tools/devspace',
+  'Kubezoo': 'tools/kubezoo',
+  'Karpenter101': 'cloud-providers/aws/karpenter',
+  'ServiceCatalog101': 'package-management/service-catalog',
+  'ManagedKubernetes': 'cloud-providers/managed',
+  'GitLab101': 'gitops/gitlab',
+  'Jenkins101': 'gitops/jenkins',
+  'Strimzi101': 'advanced-topics/strimzi',
+  'JavaClient101': 'development/java-client',
+  'python': 'development/python',
+  'golang': 'development/golang',
+  'ai': 'advanced-topics/ai',
+  'Observability101': 'observability',
+  'Cheat Sheets': 'reference'
+};
 
 // Get all markdown files
 const findMarkdownFiles = (dir) => {
@@ -42,6 +90,27 @@ const findMarkdownFiles = (dir) => {
   return results;
 };
 
+// Process READMEs in each directory
+const findReadmeFiles = (dir) => {
+  const results = [];
+  const files = fs.readdirSync(dir);
+  
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    
+    if (stat.isDirectory() && !file.startsWith('.') && file !== 'node_modules' && file !== 'docusaurus' && file !== '_site') {
+      const readmePath = path.join(filePath, 'README.md');
+      if (fs.existsSync(readmePath)) {
+        results.push(readmePath);
+      }
+      results.push(...findReadmeFiles(filePath));
+    }
+  }
+  
+  return results;
+};
+
 // Generate a docusaurus-friendly ID from a file path
 const generateDocId = (filePath) => {
   const relativePath = path.relative(ROOT_DIR, filePath);
@@ -52,21 +121,46 @@ const generateDocId = (filePath) => {
     .replace(/\//g, '_');
 };
 
-// Process the special README.md file separately as intro.md
-const processReadme = () => {
+// Determines the category for a file based on its path
+const determineCategory = (filePath) => {
+  const relativePath = path.relative(ROOT_DIR, filePath);
+  const pathParts = relativePath.split('/');
+  
+  // Check if the path matches any of our predefined categories
+  for (const [category, targetDir] of Object.entries(contentCategories)) {
+    if (pathParts[0] === category || relativePath.startsWith(category)) {
+      return targetDir;
+    }
+  }
+  
+  // Default to uncategorized
+  return 'uncategorized';
+};
+
+// Process the special ROOT README.md file as intro.md
+const processRootReadme = () => {
   const readmePath = path.join(ROOT_DIR, 'README.md');
   if (fs.existsSync(readmePath)) {
     let content = fs.readFileSync(readmePath, 'utf8');
     
     // Add front matter
-    content = '---\nid: intro\ntitle: "Introduction to KubeLabs"\nsidebar_position: 1\n---\n\n' + content;
+    content = '---\nid: intro\ntitle: "Introduction to KubeLabs"\nsidebar_position: 1\nslug: /\n---\n\n' + content;
     
     // Fix relative links
-    content = content.replace(/\]\(\.\//g, '](/');
-    content = content.replace(/\]\((\/[^)]+)\.md/g, ']($1');
+    content = content.replace(/\]\(\.\//g, '](');
+    content = content.replace(/\]\(([^)]+)\.md/g, ']($1');
+    
+    // Fix image paths
+    content = content.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, imgPath) => {
+      if (imgPath.startsWith('http')) {
+        return match; // External images don't need to be fixed
+      }
+      // Adjust the path
+      return `![${alt}](${imgPath})`;
+    });
     
     fs.writeFileSync(path.join(DOCS_DIR, 'intro.md'), content);
-    console.log('\u2705 Processed README.md as intro.md');
+    console.log('\u2705 Processed ROOT README.md as intro.md');
     
     // Add to our documents list for sidebar generation
     allDocuments.push({
@@ -94,6 +188,13 @@ const extractTitle = (content, filePath) => {
     .join(' ');
 };
 
+// Determine sidebar position based on content or filename
+const determineSidebarPosition = (content, filePath) => {
+  // You could implement logic here to determine the order
+  // For now, we'll return a default value
+  return 1;
+};
+
 // Process a markdown file for Docusaurus
 const processMarkdownFile = (filePath) => {
   const relativePath = path.relative(ROOT_DIR, filePath);
@@ -101,123 +202,133 @@ const processMarkdownFile = (filePath) => {
   
   let content = fs.readFileSync(filePath, 'utf8');
   const title = extractTitle(content, filePath);
+  const sidebarPosition = determineSidebarPosition(content, filePath);
   
-  // Determine category from path
-  const pathParts = relativePath.split('/');
-  const category = pathParts[0] === '_site' ? (pathParts[1] || 'Uncategorized') : (pathParts[0] || 'Uncategorized');
+  // Determine proper category and target directory
+  const category = determineCategory(filePath);
   
   // Add front matter
-  content = `---\nid: ${docId}\ntitle: "${title}"\n---\n\n${content}`;
+  content = `---
+id: ${docId}
+title: "${title}"
+sidebar_position: ${sidebarPosition}
+---
+
+${content}`;
   
   // Fix relative links
-  content = content.replace(/\]\(\.\//g, '](/');
-  content = content.replace(/\]\((\/[^)]+)\.md/g, ']($1');
+  content = content.replace(/\]\(\.\//g, '](../');
+  content = content.replace(/\]\(([^)]+)\.md/g, ']($1');
   
-  // Ensure docs directory structure exists
-  const targetDir = path.dirname(path.join(DOCS_DIR, relativePath));
+  // Fix image paths
+  content = content.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, imgPath) => {
+    if (imgPath.startsWith('http')) {
+      return match; // External images don't need to be fixed
+    }
+    // Adjust the path based on the category depth
+    const categoryDepth = category.split('/').length;
+    const prefix = '../'.repeat(categoryDepth);
+    return `![${alt}](${prefix}${imgPath})`;
+  });
+  
+  // Ensure target directory structure exists
+  const targetDir = path.join(DOCS_DIR, category);
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
   }
   
+  // Get basename of the file
+  const basename = path.basename(filePath);
+  
   // Write the processed file
-  fs.writeFileSync(path.join(DOCS_DIR, relativePath), content);
-  console.log(`\u2705 Processed ${relativePath} with ID: ${docId}`);
+  fs.writeFileSync(path.join(targetDir, basename), content);
+  console.log(`\u2705 Processed ${relativePath} into ${category}/${basename} with ID: ${docId}`);
   
   // Add to our documents list for sidebar generation
   allDocuments.push({
     id: docId,
     title: title,
-    path: relativePath,
+    path: `${category}/${basename}`,
     category: category
   });
 };
 
-// Generate a simple sidebar configuration
-const generateSidebar = () => {
-  const sidebar = {
-    tutorialSidebar: [
-      'intro', // Always include intro as the first item
-    ]
-  };
+// Process a README.md file specially, using the directory name as the basename
+const processReadmeFile = (filePath) => {
+  const dirPath = path.dirname(filePath);
+  const dirName = path.basename(dirPath);
+  
+  let content = fs.readFileSync(filePath, 'utf8');
+  const title = extractTitle(content, filePath);
+  
+  const docId = generateDocId(filePath);
+  const category = determineCategory(filePath);
+  
+  // Add front matter
+  content = `---
+id: ${docId}
+title: "${title}"
+sidebar_position: 1
+---
 
-  // Create a simple hand-crafted sidebar
-  const sidebarConfig = `/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
-const sidebars = {
-  tutorialSidebar: [
-    'intro',
-    'kube101',
-    'Kubernetes_Architecture',
-    {
-      type: 'category',
-      label: 'Getting Started',
-      items: ['gke-setup', 'weave', 'weave-pwk', 'kubectl-for-docker', 'api', 'detect']
-    },
-    {
-      type: 'category',
-      label: 'Pods',
-      items: ['pods101_pods101_deploy-your-first-nginx-pod', 'pods101_pods101_FAQs', 'pods101_tools_pods101_tools_kubetail'] 
-    },
-    {
-      type: 'category',
-      label: 'ConfigMaps',
-      items: ['ConfigMaps101_ConfigMaps101_what-are-configmaps', 'secerts_configmaps101_secerts_configmaps101_secrets-configmaps']
-    },
-    {
-      type: 'category',
-      label: 'Deployments',
-      items: ['Deployment101_Deployment101_Blue-Green-Strategies', 'Deployment101_Deployment101_Rolling_Update']
-    },
-    {
-      type: 'category',
-      label: 'Cloud Providers',
-      items: [
-        'AKS101_AKS101_what-is-aks',
-        'EKS101_EKS101_what-is-eks',
-        'GKE101_GKE101_what-is-gke',
-        'LKE101_LKE101_what-is-lke'
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Advanced Topics',
-      items: [
-        'Helm101_Helm101_what-is-helm',
-        'GitOps101_GitOps101_what-is-gitops',
-        'Security101_Security101_kubernetes-security',
-        'Logging101_Logging101_logging-intro',
-        'Observability101_Observability101_observability'
-      ]
-    },
-  ],
+${content}`;
+  
+  // Fix relative links
+  content = content.replace(/\]\(\.\//g, '](../');
+  content = content.replace(/\]\(([^)]+)\.md/g, ']($1');
+  
+  // Ensure target directory structure exists
+  const targetDir = path.join(DOCS_DIR, category);
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+  
+  // Use index.md for README files to be treated as the main file of the directory
+  fs.writeFileSync(path.join(targetDir, 'index.md'), content);
+  console.log(`\u2705 Processed README ${filePath} as ${category}/index.md with ID: ${docId}`);
+  
+  allDocuments.push({
+    id: docId,
+    title: title,
+    path: `${category}/index.md`,
+    category: category
+  });
 };
 
-module.exports = sidebars;`;
-
-  // Write the sidebar configuration
-  fs.writeFileSync(path.join(__dirname, '../sidebars.js'), sidebarConfig);
-  console.log('\u2705 Generated hardcoded sidebars.js configuration');
+// Generate a category-based sidebar configuration
+const generateSidebar = () => {
+  // Let's stick with our manually crafted sidebar for better organization
+  // No need to generate it automatically as we have a well-structured hand-crafted version
+  console.log('\u2705 Using existing hand-crafted sidebar.js configuration');
   
-  // Additionally, write a file with all document IDs for debugging
+  // Write out the document IDs for reference
   const allDocIds = allDocuments.map(doc => doc.id).sort();
   fs.writeFileSync(path.join(__dirname, '../all-doc-ids.txt'), allDocIds.join('\n'));
-  console.log('\u2705 Generated all-doc-ids.txt for debugging');
+  console.log('\u2705 Generated all-doc-ids.txt for debugging and reference');
 };
 
 // Main execution
 const main = () => {
   console.log('\ud83d\ude80 Starting markdown migration to Docusaurus format...');
   
-  // Process README first
-  processReadme();
+  // Process ROOT README first
+  processRootReadme();
+  
+  // Process all README.md files in directories
+  const readmeFiles = findReadmeFiles(ROOT_DIR);
+  readmeFiles.forEach(processReadmeFile);
   
   // Process all other markdown files
-  const markdownFiles = findMarkdownFiles(ROOT_DIR);
+  const markdownFiles = findMarkdownFiles(ROOT_DIR)
+    .filter(file => !file.endsWith('README.md')); // Exclude README files already processed
+  
   markdownFiles.forEach(processMarkdownFile);
   
   // Generate the sidebar configuration
   generateSidebar();
   
-  console.log(`\n\u2728 Successfully processed ${markdownFiles.length + 1} files!`);
+  console.log(`\n\u2728 Successfully processed ${markdownFiles.length + readmeFiles.length + 1} files!`);
+  console.log(`\n\ud83d\udcd6 Content organized into categories in the docs directory!`);
 };
 
 main();
