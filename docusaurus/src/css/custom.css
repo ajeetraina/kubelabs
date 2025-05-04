@@ -15,6 +15,11 @@
   --ifm-color-primary-lightest: #7ca0ef;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  
+  /* Custom variables for sidebar and content */
+  --sidebar-category-font-weight: 600;
+  --sidebar-item-spacing: 0.4rem;
+  --content-max-width: 80rem;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -27,4 +32,101 @@
   --ifm-color-primary-lighter: #88bfff;
   --ifm-color-primary-lightest: #b8d8ff;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Improve sidebar styling */
+.menu {
+  font-size: 0.9rem;
+}
+
+.menu__link {
+  padding: 0.4rem 0.75rem;
+}
+
+.menu__link--active {
+  font-weight: 600;
+}
+
+.menu__list-item-collapsible {
+  font-weight: var(--sidebar-category-font-weight);
+}
+
+.menu__list-item {
+  margin: var(--sidebar-item-spacing) 0;
+}
+
+.menu__list-item-collapsible .menu__link {
+  padding-right: 2rem;
+}
+
+/* Nested categories styling */
+.menu__list .menu__list {
+  margin-left: 0.5rem;
+  margin-top: 0.25rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Main content area improvements */
+.container {
+  max-width: var(--content-max-width);
+}
+
+/* Improve code blocks appearance */
+.prism-code {
+  border-radius: 0.5rem;
+}
+
+/* Improve tables appearance */
+table {
+  display: table;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+table th, table td {
+  padding: 0.5rem 0.75rem;
+}
+
+/* Add shadow to navbar on scroll */
+.navbar.navbar--fixed-top {
+  transition: box-shadow 0.3s ease;
+}
+
+.navbar.navbar--fixed-top.navbar-sidebar--show {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Improve table of contents styling */
+.table-of-contents {
+  font-size: 0.85rem;
+}
+
+.table-of-contents__link {
+  display: block;
+  padding: 0.25rem 0;
+}
+
+.table-of-contents__link--active {
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+}
+
+/* Improve heading styling */
+.markdown h1, .markdown h2, .markdown h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.markdown h2 {
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding-bottom: 0.5rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 996px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
