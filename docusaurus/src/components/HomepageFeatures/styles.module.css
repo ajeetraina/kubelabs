@@ -4,3 +4,23 @@
   padding: 2rem 0;
   width: 100%;
 }
+
+.featureSvg {
+  height: 120px;
+  width: 120px;
+  margin-bottom: 1.5rem;
+  fill: var(--ifm-color-primary);
+}
+
+/* Add responsive styling */
+@media screen and (max-width: 996px) {
+  .features {
+    padding: 1rem 0;
+  }
+  
+  .featureSvg {
+    height: 80px;
+    width: 80px;
+    margin-bottom: 1rem;
+  }
+}
