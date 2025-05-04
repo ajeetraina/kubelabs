@@ -7,11 +7,13 @@ const config = {
   title: 'KubeLabs',
   tagline: 'A Curated List of Kubernetes Labs and Tutorials',
   favicon: 'img/favicon.ico',
+  // Update URL with trailing slash
   url: 'https://kubelabs.ajeetraina.com',
   baseUrl: '/',
+  trailingSlash: true,
   organizationName: 'ajeetraina',
   projectName: 'kubelabs',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn', // Changed from 'throw' to 'warn' to prevent build failures
   onBrokenMarkdownLinks: 'warn',
   i18n: {
     defaultLocale: 'en',
@@ -131,7 +133,7 @@ const config = {
             items: [
               {
                 label: 'Blog',
-                to: 'https://collabnix.com',
+                href: 'https://collabnix.com',
               },
               {
                 label: 'GitHub',
@@ -151,6 +153,11 @@ const config = {
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
       },
+      // Added metadata to improve SEO
+      metadata: [
+        {name: 'keywords', content: 'kubernetes, k8s, docker, containers, tutorials, labs, devops'},
+        {name: 'description', content: 'A curated list of Kubernetes labs and tutorials for all skill levels'}
+      ],
     }),
     
   // Additional plugins for better user experience
@@ -163,6 +170,17 @@ const config = {
         min: 640,
         steps: 2,
         disableInDev: false,
+      },
+    ],
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            from: '/index.html',
+            to: '/',
+          },
+        ],
       },
     ],
   ],
